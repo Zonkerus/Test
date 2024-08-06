@@ -53,12 +53,17 @@ get_rv_prebuilts() {
 		dir=${TEMP_DIR}/${dir,,}-rv
 		[ -d "$dir" ] || mkdir "$dir"
 
-		local rv_rel="https://api.github.com/repos/${src}/releases/"
-		if [ "$ver" ]; then rv_rel+="tags/${ver}"; else rv_rel+="latest"; fi
+		local rv_rel="https://api.github.com/repos/${src}/releases"
+		if [ "$ver" ]; then rv_rel+="/tags/${ver}"; fi
 
-		local resp asset url name file
+		local resp is_array asset url name file
 		resp=$(gh_req "$rv_rel" -) || return 1
-		asset=$(jq -e -r ".assets[] | select(.name | endswith(\"$ext\"))" <<<"$resp") || return 1
+		is_array=$(jq -e 'type == "array"' <<<"$resp")
+		if [ "$is_array" == "true" ]; then
+			asset=$(jq -e -r ".[0] | .assets[] | select(.name | endswith(\"$ext\"))" <<<"$resp") || return 1
+		else
+			asset=$(jq -e -r ".assets[] | select(.name | endswith(\"$ext\"))" <<<"$resp") || return 1
+		fi
 		url=$(jq -r .url <<<"$asset")
 		name=$(jq -r .name <<<"$asset")
 		file="${dir}/${name}"
@@ -69,10 +74,18 @@ get_rv_prebuilts() {
 		echo -n "$file "
 		if [ "$tag" = "Patches" ]; then
 			local tag_name
-			tag_name=$(jq -r '.tag_name' <<<"$resp")
+			if [ "$is_array" == "true" ]; then
+				tag_name=$(jq -r '.[0] | .tag_name' <<<"$resp")
+			else
+				tag_name=$(jq -r '.tag_name' <<<"$resp")
+			fi
 			name="patches-${tag_name}.json"
 			file="${dir}/${name}"
-			url=$(jq -e -r '.assets[] | select(.name | endswith("json")) | .url' <<<"$resp") || return 1
+			if [ "$is_array" == "true" ]; then
+				url=$(jq -e -r '.[0] | .assets[] | select(.name | endswith("json")) | .url' <<<"$resp") || return 1
+			else
+				url=$(jq -e -r '.assets[] | select(.name | endswith("json")) | .url' <<<"$resp") || return 1
+			fi
 			gh_dl "$file" "$url" >&2 || return 1
 			echo -n "$file "
 			echo -e "[Changelog](https://github.com/${src}/releases/tag/${tag_name})\n" >>"${cl_dir}/changelog.md"
@@ -120,8 +133,8 @@ config_update() {
 			fi
 		else
 			sources[$PATCHES_SRC]=0
-			if ! last_patches=$(gh_req "https://api.github.com/repos/${PATCHES_SRC}/releases/latest" - |
-				jq -e -r '.assets[] | select(.name | endswith("jar")) | .name'); then
+			if ! last_patches=$(gh_req "https://api.github.com/repos/${PATCHES_SRC}/releases" - |
+				jq -e -r '.[0] | .assets[] | select(.name | endswith("jar")) | .name'); then
 				abort oops
 			fi
 			cur_patches=$(sed -n "s/.*Patches: ${PATCHES_SRC%%/*}\/\(.*\)/\1/p" build.md | xargs)
