@@ -1,0 +1,58 @@
+enable-magisk-update = true
+
+parallel-jobs = 1
+compression-level = 9
+
+patches-source = "anddea/revanced-patches"
+rv-brand = "ReVanced Extended"
+
+patches-version = "latest"
+cli-version = "latest"
+
+[YouTube]
+enabled = true
+build-mode = "module"
+
+version = "auto"
+
+included-patches = """\
+  'Bypass URL redirects' \
+  'Change live ring click action' \
+  'Description components' \
+  'Disable forced auto captions' \
+  'Disable resuming Miniplayer on startup' \
+  'Disable resuming Shorts on startup' \
+  'Disable sign in to TV popup' \
+  'Fullscreen components' \
+  'Hide action buttons' \
+  'Hide ads' \
+  'Hide comments components' \
+  'Hide feed components' \
+  'Hide feed flyout menu' \
+  'Hide layout components' \
+  'Hide player buttons' \
+  'Hide player flyout menu' \
+  'Miniplayer' \
+  'Navigation bar components' \
+  'Open links externally' \
+  'Overlay buttons' \
+  'Player components' \
+  'Remove background playback restrictions' \
+  'Remove viewer discretion dialog' \
+  'Sanitize sharing links' \
+  'Seekbar components' \
+  'Settings for YouTube' \
+  'Shorts components' \
+  'Snack bar components' \
+  'SponsorBlock' \
+  'Toolbar components' \
+  'Translations for YouTube' \
+  'Video playback' \
+  'Visual preferences icons for YouTube' \
+  """
+
+include-stock = true
+exclusive-patches = true
+
+apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
+uptodown-dlurl = "https://youtube.en.uptodown.com/android"
