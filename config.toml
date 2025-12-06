@@ -11,7 +11,7 @@ cli-version = "latest"
 
 [YouTube]
 enabled = true
-build-mode = "module"
+build-mode = "apk"
 
 version = "auto"
 
@@ -24,6 +24,7 @@ included-patches = """\
   'Disable resuming Shorts on startup' \
   'Disable sign in to TV popup' \
   'Fullscreen components' \
+  'GmsCore support' \
   'Hide action buttons' \
   'Hide ads' \
   'Hide comments components' \
